@@ -6,7 +6,7 @@ LD_SCRIPT_PATH    = $(shell pwd)/src/linker
 KERNEL_MANIFEST      = Cargo.toml
 KERNEL_LINKER_SCRIPT = kernel64.lds
 
-KERNEL_ELF      = target/$(TARGET)/debug/kernel64
+KERNEL_ELF      = target/$(TARGET)/debug/kernel64-rust
 
 RUSTFLAGS_APPEND = -C target-cpu=cortex-a53 \
     -C link-arg=--library-path=$(LD_SCRIPT_PATH) \

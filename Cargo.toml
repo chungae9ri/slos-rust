@@ -14,7 +14,7 @@ default = []
 man_registers = ["tock-registers"]
 
 [[bin]]
-name = "kernel64"
+name = "kernel64-rust"
 path = "src/main.rs"
 
 ##--------------------------------------------------------------------------------------------------

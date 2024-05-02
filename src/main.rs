@@ -2,6 +2,7 @@
 #![no_std]
 
 mod arch;
+mod drivers;
 
 use core::panic::PanicInfo;
 
@@ -11,5 +12,6 @@ fn panic(_info: &PanicInfo) -> ! {
 }
 
 unsafe fn init_kernel() -> ! {
+    drivers::uart::uart::init_uart();
     loop {}
 }

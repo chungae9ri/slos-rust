@@ -12,6 +12,11 @@ const MODEMCR_OFFSET:ArchAddr = 0x24;
 const BAUD_DIV_OFFSET:ArchAddr = 0x34;
 const FLOW_DELAY_OFFSET:ArchAddr = 0x38;
 const TX_FIFO_TRIG_LV_OFFSET:ArchAddr = 0x44;
+const SR_OFFSET:ArchAddr = 0x2C;
+const FIFO_OFFSET:ArchAddr = 0x30;
+
+const BM_SR_TXFULL:u32 = 0x00000010;
+const BM_SR_RXEMPTY:u32 = 0x00000002;
 
 pub fn init_uart() -> () {
     mmio_write32(UART_BASE_ADDR  + CR_OFFSET, 0x00000114);
@@ -25,4 +30,36 @@ pub fn init_uart() -> () {
 	mmio_write32(UART_BASE_ADDR  + BAUD_DIV_OFFSET, 0x00000006);
 	mmio_write32(UART_BASE_ADDR  + FLOW_DELAY_OFFSET, 0x00000000);
 	mmio_write32(UART_BASE_ADDR  + TX_FIFO_TRIG_LV_OFFSET, 0x00000020);
+}
+
+pub fn poll_out(c:u8)
+{
+	let mut reg_val:u32 = mmio_read32(UART_BASE_ADDR + SR_OFFSET);
+
+	while (reg_val & BM_SR_TXFULL) == BM_SR_TXFULL {
+		reg_val = mmio_read32(UART_BASE_ADDR + SR_OFFSET);
+	}
+
+	mmio_write32(UART_BASE_ADDR + FIFO_OFFSET, c as u32);
+
+	reg_val = mmio_read32(UART_BASE_ADDR + SR_OFFSET);
+
+	while (reg_val & BM_SR_TXFULL) == BM_SR_TXFULL {
+		reg_val = mmio_read32(UART_BASE_ADDR + SR_OFFSET);
+	}
+}
+
+pub fn poll_in() -> u8
+{
+	let mut c:u32 = 0;
+
+	/* Wait until there is data */
+	while (mmio_read32(UART_BASE_ADDR + SR_OFFSET) &
+			BM_SR_RXEMPTY) == BM_SR_RXEMPTY {
+		
+	}
+
+	c = mmio_read32(UART_BASE_ADDR + FIFO_OFFSET);
+
+	c as u8
 }

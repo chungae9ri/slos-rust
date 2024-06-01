@@ -1,5 +1,5 @@
 use crate::drivers::uart::uart::StdioUart;
-use core::fmt;
+use core::{fmt, fmt::Write};
 
 //--------------------------------------------------------------------------------------------------
 // Public Code

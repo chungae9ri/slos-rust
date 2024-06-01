@@ -6,7 +6,7 @@ mod drivers;
 mod print;
 
 use core::panic::PanicInfo;
-const UART_BASE_ADDR:usize = 0x8000000;
+const UART_BASE_ADDR:usize = 0xFF010000;
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {

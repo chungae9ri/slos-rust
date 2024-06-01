@@ -3,8 +3,10 @@
 
 mod arch;
 mod drivers;
+mod print;
 
 use core::panic::PanicInfo;
+const UART_BASE_ADDR:usize = 0x8000000;
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
@@ -12,6 +14,7 @@ fn panic(_info: &PanicInfo) -> ! {
 }
 
 unsafe fn init_kernel() -> ! {
-    drivers::uart::uart::init_uart();
+    let mut uart_inst = drivers::uart::uart::StdioUart::new(UART_BASE_ADDR);
+    println!(&mut uart_inst, "Hello World\n");
     loop {}
 }

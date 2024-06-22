@@ -1,5 +1,5 @@
 use core::fmt;
-use crate::drivers::mmio::{mmio_read32, mmio_write32};
+use crate::{drivers::mmio::{mmio_read32, mmio_write32}, device_driver::interface::DeviceDriver};
 
 const CR_OFFSET:usize = 0x0;
 const MR_OFFSET:usize = 0x4;
@@ -18,18 +18,23 @@ const FIFO_OFFSET:usize = 0x30;
 const BM_SR_TXFULL:u32 = 0x00000010;
 const BM_SR_RXEMPTY:u32 = 0x00000002;
 
-pub struct StdioUart {
+
+pub struct Uart {
 	base_addr:usize,
 }
 
-impl StdioUart {
-	pub fn new(addr:usize) -> Self {
+impl Uart {
+	pub const fn new(addr:usize) -> Self {
 		Self {
 			base_addr: addr,
 		}
 	}
 
-	pub fn init_uart(&mut self) -> () {
+	pub fn init_base_addr(&mut self, addr:usize) -> () {
+		self.base_addr = addr;
+	}
+
+	pub fn init_uart(&self) -> () {
     	mmio_write32(self.base_addr + CR_OFFSET, 0x00000114);
 		mmio_write32(self.base_addr + MR_OFFSET, 0x00000020);
 		mmio_write32(self.base_addr + IER_OFFSET, 0x00000000);
@@ -74,7 +79,7 @@ impl StdioUart {
 	}
 }
 
-impl fmt::Write for StdioUart {
+impl fmt::Write for Uart {
 	fn write_str(&mut self, s: &str) -> fmt::Result {
 		for c in s.chars() {
 			self.poll_out(c as u8);
@@ -84,3 +89,9 @@ impl fmt::Write for StdioUart {
 	}
 }
 
+impl DeviceDriver for Uart {
+	unsafe fn init(&self) -> Result<(), &'static str> {
+		self.init_uart();
+		Ok(())
+	}
+}

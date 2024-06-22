@@ -10,7 +10,8 @@ KERNEL_ELF      = target/$(TARGET)/debug/kernel64-rust
 
 RUSTFLAGS_APPEND = -C target-cpu=cortex-a53 \
     -C link-arg=--library-path=$(LD_SCRIPT_PATH) \
-    -C link-arg=--script=$(KERNEL_LINKER_SCRIPT)
+    -C link-arg=--script=$(KERNEL_LINKER_SCRIPT) \
+	-C link-arg=-Map=$(KERNEL_ELF).map
 
 KERNEL_ELF_DEPS = $(filter-out %: ,$(file < $(KERNEL_ELF).d)) $(KERNEL_MANIFEST)
 

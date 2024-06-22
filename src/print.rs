@@ -1,13 +1,13 @@
-use crate::drivers::uart::uart::StdioUart;
 use core::{fmt, fmt::Write};
 
+use crate::UART_INST;
 //--------------------------------------------------------------------------------------------------
 // Public Code
 //--------------------------------------------------------------------------------------------------
 
 #[doc(hidden)]
-pub fn _print(uart:&mut StdioUart, args: fmt::Arguments) {
-    uart.write_fmt(args).unwrap();
+pub fn _print(args: fmt::Arguments) {
+    unsafe { UART_INST.write_fmt(args).unwrap() };
 }
 
 /// Prints with a newline.
@@ -15,7 +15,7 @@ pub fn _print(uart:&mut StdioUart, args: fmt::Arguments) {
 /// Carbon copy from <https://doc.rust-lang.org/src/std/macros.rs.html>
 #[macro_export]
 macro_rules! println {
-    ($uart:expr, $($arg:tt)*) => ({
-        $crate::print::_print($uart, format_args!($($arg)*));
+    ($($arg:tt)*) => ({
+        $crate::print::_print(format_args!($($arg)*));
     })
 }

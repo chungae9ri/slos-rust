@@ -9,8 +9,8 @@ extern "C" {
 
 #[no_mangle]
 pub unsafe fn _start_rust() -> ! {
-    let mut bss_start_addr:usize;
-    let mut bss_end_addr:usize;
+    let bss_start_addr:usize;
+    let bss_end_addr:usize;
 
     unsafe {
         bss_start_addr = &_sbss as *const u8 as usize;

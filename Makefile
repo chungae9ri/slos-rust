@@ -15,7 +15,7 @@ RUSTFLAGS_APPEND = -C target-cpu=cortex-a53 \
 
 KERNEL_ELF_DEPS = $(filter-out %: ,$(file < $(KERNEL_ELF).d)) $(KERNEL_MANIFEST)
 
-RUSTC_BUILD_ARGS = --features man_registers --target $(TARGET)
+RUSTC_BUILD_ARGS = --target $(TARGET)
 
 RUSTC_BUILD = cargo rustc $(RUSTC_BUILD_ARGS)
 

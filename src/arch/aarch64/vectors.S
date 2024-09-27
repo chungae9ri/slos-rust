@@ -63,10 +63,19 @@ el1_entry_aarch64:
      */
     mov      x0, #(0x3 << 20)
     msr      CPACR_EL1, x0
-  
+
+    /* __stack_start should be page size aligned */
     adrp x0, __stack_start
     mov sp, x0
-	b _start_rust
+    
+    /* read and store cntfreq */
+    adrp x0, ARCH_TIMER_COUNTER_FREQ
+    add x0, x0, #:lo12:ARCH_TIMER_COUNTER_FREQ
+    mrs x1, CNTFRQ_EL0
+    str x1, [x0]
+    
+    /* jump to rust start */
+    b _start_rust
 
 .balign 0x800
 /* current EL with SP0 */

@@ -7,8 +7,11 @@ mod print;
 mod device_driver;
 
 use core::panic::PanicInfo;
+use core::time::Duration;
+
 use device_driver::DriverManager;
-use crate::device_driver::DeviceDriverDesc;
+use device_driver::DeviceDriverDesc;
+use arch::aarch64::time::spin_for;
 
 const UART_BASE_ADDR:usize = 0xFF010000;
 
@@ -21,8 +24,6 @@ fn panic(_info: &PanicInfo) -> ! {
 }
 
 unsafe fn init_kernel() -> ! {
-    // FIXME: This should be placed here even though the Uart::new()
-    // initialize the base_addr. W/o this, the base_addr isn't valid value.
     UART_INST.init_base_addr(UART_BASE_ADDR);
 
     let uart_desc:DeviceDriverDesc = DeviceDriverDesc::new(&UART_INST);
@@ -31,6 +32,10 @@ unsafe fn init_kernel() -> ! {
 
     let _ = uart_desc.device_driver.init();
 
-    println!("Hello World\n");
+    for i in 1..6 {
+        println!("Hello World: {}\n", i);
+        spin_for(Duration::from_millis(1000));
+    }
+
     loop {}
 }

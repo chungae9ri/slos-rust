@@ -13,13 +13,13 @@
 
 _start:
     /* initialize VBAR_EL3.*/
-    ldr x1, =vector_table_el3
-    msr VBAR_EL3, x1
+    ldr x0, =vector_table_el3
+    msr VBAR_EL3, x0
 
     /* initialize sp for EL3 */
     /*ADRP x0, #0x100000*/
     mov sp, #0x100000  
-    /* configure scr for return EL1 */ 
+    /* configure scr for return EL2 */ 
     mrs x0, SCR_EL3
     orr x0, x0, #(1 << 10)  /* EL2 execution state is aarch64 */
     orr x0, x0, #(1 << 0)   /* EL2 is NS */
@@ -51,18 +51,24 @@ el2_entry_aarch64:
     eret
 
 el1_entry_aarch64:
+    mrs x0, MPIDR_EL1
+    and x0, x0, 0x3
+    mov x1, 0x0
+    cmp x0, x1
+    bne .park_loop
+
     /* we can use the same vector table in this example, but in general
      * each combination of Exception level, Security state, and Execution state
      * will need a new vector table
      */
-    ldr      x0, =vector_table_el1
-    msr      VBAR_EL1, x0
+    ldr x0, =vector_table_el1
+    msr VBAR_EL1, x0
 
     /* we must ensure that floating point register accesses are not trapped
      * since the c library for AArch64-v8A uses them
      */
-    mov      x0, #(0x3 << 20)
-    msr      CPACR_EL1, x0
+    mov x0, #(0x3 << 20)
+    msr CPACR_EL1, x0
 
     /* __stack_start should be page size aligned */
     adrp x0, __stack_start
@@ -77,111 +83,114 @@ el1_entry_aarch64:
     /* jump to rust start */
     b _start_rust
 
+.park_loop:
+    b .
+
 .balign 0x800
 /* current EL with SP0 */
 vector_table_el3:
-	b	synch_intr_handler
+	b synch_intr_handler
 
 .balign 0x80
-	b	irq_intr_handler
+	b irq_intr_handler
 
 .balign 0x80
-	b	fiq_intr_handler
+	b fiq_intr_handler
 
 .balign 0x80
-	b	serr_intr_handler
+	b serr_intr_handler
 
 /* current EL with SPx */
 .balign 0x80
-	b	synch_intr_handler
+	b synch_intr_handler
 
 .balign 0x80
-	b	irq_intr_handler
+	b irq_intr_handler
 
 .balign 0x80
-	b	fiq_intr_handler
+	b fiq_intr_handler
 
 .balign 0x80
-	b	serr_intr_handler
+	b serr_intr_handler
 
 /* lower EL using aarch64 */
 .balign 0x80
-	b	synch_intr_handler
+	b synch_intr_handler
 
 .balign 0x80
-	b	irq_intr_handler
+	b irq_intr_handler
 
 .balign 0x80
-	b	fiq_intr_handler
+	b fiq_intr_handler
 
 .balign 0x80
-	b	serr_intr_handler
+	b serr_intr_handler
 
 /* lower EL using aarch32 */
 .balign 0x80
-	b	synch_intr_handler
+	b synch_intr_handler
 
 .balign 0x80
-	b	irq_intr_handler
+	b irq_intr_handler
 
 .balign 0x80
-	b	fiq_intr_handler
+	b fiq_intr_handler
 
 .balign 0x80
-	b	serr_intr_handler
+	b serr_intr_handler
 
 .balign 0x800
 /* current EL with SP0 */
 vector_table_el1:
-	b	synch_intr_handler
+	b synch_intr_handler
 
 .balign 0x80
-	b	irq_intr_handler
+	b irq_intr_handler
 
 .balign 0x80
-	b	fiq_intr_handler
+	b fiq_intr_handler
 
 .balign 0x80
-	b	serr_intr_handler
+	b serr_intr_handler
 
 /* current EL with SPx */
 .balign 0x80
-	b	synch_intr_handler
+	b synch_intr_handler
 
 .balign 0x80
-	b	irq_intr_handler
+	b irq_intr_handler
 
 .balign 0x80
-	b	fiq_intr_handler
+	b fiq_intr_handler
 
 .balign 0x80
-	b	serr_intr_handler
+	b serr_intr_handler
 
 /* lower EL using aarch64 */
 .balign 0x80
-	b	synch_intr_handler
+	b synch_intr_handler
 
 .balign 0x80
-	b	irq_intr_handler
+	b irq_intr_handler
 
 .balign 0x80
-	b	fiq_intr_handler
+	b fiq_intr_handler
 
 .balign 0x80
-	b	serr_intr_handler
+	b serr_intr_handler
 
 /* lower EL using aarch32 */
 .balign 0x80
-	b	synch_intr_handler
+	b synch_intr_handler
 
 .balign 0x80
-	b	irq_intr_handler
+	b irq_intr_handler
 
 .balign 0x80
-	b	fiq_intr_handler
+	b fiq_intr_handler
 
 .balign 0x80
-	b	serr_intr_handler
+	b serr_intr_handler
 
 /* exception handler */
 synch_intr_handler:

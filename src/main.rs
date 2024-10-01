@@ -32,10 +32,10 @@ unsafe fn init_kernel() -> ! {
 
     let _ = uart_desc.device_driver.init();
 
-    for i in 1..6 {
+    let mut i:u64 = 0;
+    loop {
         println!("Hello World: {}\n", i);
         spin_for(Duration::from_millis(1000));
+        i += 1;
     }
-
-    loop {}
 }

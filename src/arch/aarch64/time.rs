@@ -2,7 +2,8 @@ use core::time::Duration;
 use core::{
     num::{NonZeroU32,NonZeroU64, NonZeroU128},
     ops::{Div,Add},
-    arch::asm
+    arch::asm,
+    ptr::addr_of_mut
 };
 
 use crate::println;
@@ -53,7 +54,9 @@ impl GenericTimerCounterValue {
 fn arch_timer_counter_frequency() -> NonZeroU32 {
     // Read volatile is needed here to prevent the compiler from optimizing
     // ARCH_TIMER_COUNTER_FREQUENCY away.
-    unsafe { core::ptr::read_volatile(&ARCH_TIMER_COUNTER_FREQ) }
+    unsafe { 
+        core::ptr::read_volatile(addr_of_mut!(ARCH_TIMER_COUNTER_FREQ))
+    }
 }
 
 impl From<GenericTimerCounterValue> for Duration {

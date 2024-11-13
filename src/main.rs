@@ -8,14 +8,16 @@ mod device_driver;
 
 use core::panic::PanicInfo;
 use core::time::Duration;
+use core::ptr::addr_of;
 
+use device_driver::interface;
 use device_driver::DriverManager;
 use device_driver::DeviceDriverDesc;
 use arch::aarch64::time::spin_for;
+use drivers::uart::uart::UART_INST;
 
 const UART_BASE_ADDR:usize = 0xFF010000;
 
-pub static mut UART_INST:drivers::uart::uart::Uart = drivers::uart::uart::Uart::new(UART_BASE_ADDR);
 pub static mut DRV_MANAGER_INST:DriverManager = DriverManager::new();
 
 #[panic_handler]
@@ -26,7 +28,9 @@ fn panic(_info: &PanicInfo) -> ! {
 unsafe fn init_kernel() -> ! {
     UART_INST.init_base_addr(UART_BASE_ADDR);
 
-    let uart_desc:DeviceDriverDesc = DeviceDriverDesc::new(&UART_INST);
+    let uart_raw_ptr = addr_of!(UART_INST);
+    let uart_ref:&'static (dyn interface::DeviceDriver + Sync) = unsafe{&*uart_raw_ptr};
+    let uart_desc:DeviceDriverDesc = DeviceDriverDesc::new(uart_ref);
 
     DRV_MANAGER_INST.register_driver_desc(uart_desc);
 

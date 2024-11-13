@@ -1,6 +1,8 @@
 use core::fmt;
 use crate::{drivers::mmio::{mmio_read32, mmio_write32}, device_driver::interface::DeviceDriver};
 
+pub static mut UART_INST:Uart = Uart::new();
+
 const CR_OFFSET:usize = 0x0;
 const MR_OFFSET:usize = 0x4;
 const IER_OFFSET:usize = 0x8;
@@ -16,6 +18,7 @@ const SR_OFFSET:usize = 0x2C;
 const FIFO_OFFSET:usize = 0x30;
 
 const BM_SR_TXFULL:u32 = 0x00000010;
+#[allow(dead_code)]
 const BM_SR_RXEMPTY:u32 = 0x00000002;
 
 
@@ -24,10 +27,8 @@ pub struct Uart {
 }
 
 impl Uart {
-	pub const fn new(addr:usize) -> Self {
-		Self {
-			base_addr: addr,
-		}
+	pub const fn new() -> Self {
+		Self {base_addr:0}
 	}
 
 	pub fn init_base_addr(&mut self, addr:usize) -> () {
@@ -64,6 +65,7 @@ impl Uart {
 		}
 	}
 
+	#[allow(dead_code)]
 	pub fn poll_in(&mut self) -> u8 {
 		let c:u32;
 
